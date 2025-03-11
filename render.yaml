@@ -1,0 +1,13 @@
+services:
+  - type: web
+    name: cooking-recipe
+    env: node
+    buildCommand: npm install
+    startCommand: node ./bin/www
+    envVars:
+      - key: NODE_ENV
+        value: production
+    disk:
+      name: data
+      mountPath: /data
+      sizeGB: 1

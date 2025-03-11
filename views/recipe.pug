@@ -1,0 +1,82 @@
+extends layout
+
+block content
+  .container.mt-4
+    .row
+      .col-md-8
+        if recipe.image_url
+          img.img-fluid.rounded.mb-4(src=recipe.image_url, alt=recipe.title)
+        
+        h1.mb-3= recipe.title
+        
+        .recipe-meta.text-muted.mb-4
+          .row
+            .col-md-4
+              i.bi.bi-clock
+              span.ms-2 Prep: #{recipe.prep_time} mins
+            .col-md-4
+              i.bi.bi-fire
+              span.ms-2 Cook: #{recipe.cook_time} mins
+            .col-md-4
+              i.bi.bi-people
+              span.ms-2 Serves: #{recipe.servings}
+        
+        if recipe.description
+          .recipe-description.mb-4
+            p= recipe.description
+        
+        if recipe.categories && recipe.categories.length
+          .recipe-categories.mb-4
+            h5 Categories
+            .d-flex.flex-wrap.gap-2
+              each category in recipe.categories
+                span.badge.bg-secondary= category.name
+        
+        .recipe-ingredients.mb-4
+          h3 Ingredients
+          ul.list-unstyled
+            each ingredient in recipe.ingredients
+              li.mb-2
+                span.fw-bold #{ingredient.quantity} #{ingredient.unit}
+                span  #{ingredient.name}
+        
+        .recipe-instructions.mb-4
+          h3 Instructions
+          each instruction, index in recipe.instructions
+            .instruction-step.mb-4
+              .step-header.mb-2
+                h5.mb-0 Step #{index + 1}
+              p.mb-3= instruction.description
+              if instruction.images && instruction.images.length
+                .step-images.row.g-2.mb-3
+                  each image in instruction.images
+                    .col-6.col-md-4.col-lg-3
+                      a.step-image(href=image.path data-lightbox=`step-${index + 1}` data-title=`Step ${index + 1}`)
+                        img.img-fluid.rounded(src=image.path alt=`Step ${index + 1} image`)
+        
+        .recipe-actions.mt-4
+          .d-flex.gap-2
+            a.btn.btn-secondary(href='/') Back to Recipes
+            a.btn.btn-primary(href=`/recipe/${recipe.id}/edit`) Edit Recipe
+            button#deleteRecipe.btn.btn-danger(data-id=recipe.id) Delete Recipe
+      
+      .col-md-4
+        .card
+          .card-body
+            h5.card-title Recipe Details
+            ul.list-unstyled.mb-0
+              li.mb-2
+                strong Total Time: 
+                span #{recipe.prep_time + recipe.cook_time} mins
+              li.mb-2
+                strong Created: 
+                span= new Date(recipe.created_at).toLocaleDateString()
+              if recipe.updated_at && recipe.updated_at !== recipe.created_at
+                li.mb-2
+                  strong Last Updated: 
+                  span= new Date(recipe.updated_at).toLocaleDateString()
+
+block scripts
+  script(src='https://cdnjs.cloudflare.com/ajax/libs/lightbox2/2.11.3/js/lightbox.min.js')
+  link(rel='stylesheet' href='https://cdnjs.cloudflare.com/ajax/libs/lightbox2/2.11.3/css/lightbox.min.css')
+  script(src='/javascripts/main.js')

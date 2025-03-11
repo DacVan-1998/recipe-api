@@ -1,0 +1,72 @@
+extends layout
+
+block content
+  .container.mt-4
+    .d-flex.justify-content-between.align-items-center.mb-4
+      h1= title
+      a.btn.btn-primary(href='/recipe/new')
+        i.bi.bi-plus-lg.me-2
+        | Add New Recipe
+    
+    if error
+      .alert.alert-danger.mb-4= error
+    
+    form.search-form.mb-4
+      .row
+        .col-md-6
+          .form-group
+            input.form-control(type='text', name='search', placeholder='Search recipes...', value=search)
+        .col-md-4
+          .form-group
+            select.form-control(name='category')
+              option(value='', selected=!category) All Categories
+              if categories && categories.length
+                each cat in categories
+                  option(value=cat.name, selected=category===cat.name)= cat.name
+        .col-md-2
+          button.btn.btn-primary.w-100(type='submit') Search
+    
+    .row
+      if recipes && recipes.length > 0
+        each recipe in recipes
+          .col-md-6.col-lg-4.mb-4
+            .card.h-100
+              if recipe.image_url
+                img.card-img-top(src=recipe.image_url, alt=recipe.title style='height: 200px; object-fit: cover;')
+              .card-body
+                h5.card-title= recipe.title
+                if recipe.description
+                  p.card-text.text-muted.mb-2= recipe.description.substring(0, 100) + (recipe.description.length > 100 ? '...' : '')
+                
+                .recipe-meta.small.text-muted.mb-2
+                  .d-flex.justify-content-between
+                    span
+                      i.bi.bi-clock.me-1
+                      | #{recipe.prep_time + recipe.cook_time} mins
+                    span
+                      i.bi.bi-people.me-1
+                      | Serves #{recipe.servings}
+                
+                if recipe.categories && recipe.categories.length
+                  .categories.mb-2
+                    each category in recipe.categories
+                      span.badge.bg-secondary.me-1= category.name
+                
+                .mt-auto
+                  .d-flex.gap-2
+                    a.btn.btn-primary.flex-grow-1(href=`/recipe/${recipe.id}`) View Recipe
+                    a.btn.btn-outline-primary(href=`/recipe/${recipe.id}/edit`)
+                      i.bi.bi-pencil
+      else
+        .col-12
+          .alert.alert-info
+            p.mb-0 No recipes found. 
+              if search || category
+                | Try adjusting your search criteria.
+              else
+                | Why not 
+                a(href='/recipe/new') add one
+                | ?
+
+block scripts
+  script(src='/javascripts/main.js')

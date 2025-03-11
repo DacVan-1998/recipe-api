@@ -1,0 +1,99 @@
+extends layout
+
+block content
+  .container.mt-4
+    h1= recipe ? 'Edit Recipe' : 'Create New Recipe'
+    form#recipeForm(data-id=recipe ? recipe.id : '' enctype="multipart/form-data")
+      .row
+        .col-md-8
+          .mb-3
+            label.form-label(for='title') Recipe Title
+            input#title.form-control(type='text' name='title' required value=recipe ? recipe.title : '')
+          
+          .mb-3
+            label.form-label(for='description') Description
+            textarea#description.form-control(name='description' rows='3')= recipe ? recipe.description : ''
+          
+          .mb-3
+            label.form-label(for='recipe_image') Recipe Image
+            input#recipe_image.form-control(type='file' name='recipe_image' accept='image/*')
+            if recipe && recipe.image_url
+              .mt-2
+                img.img-thumbnail(src=recipe.image_url alt=recipe.title style='height: 100px')
+
+        .col-md-4
+          .mb-3
+            label.form-label(for='prep_time') Prep Time (minutes)
+            input#prep_time.form-control(type='number' name='prep_time' required min='0' value=recipe ? recipe.prep_time : '')
+          
+          .mb-3
+            label.form-label(for='cook_time') Cook Time (minutes)
+            input#cook_time.form-control(type='number' name='cook_time' required min='0' value=recipe ? recipe.cook_time : '')
+          
+          .mb-3
+            label.form-label(for='servings') Servings
+            input#servings.form-control(type='number' name='servings' required min='1' value=recipe ? recipe.servings : '')
+
+      .row.mt-4
+        .col-md-6
+          h3 Ingredients
+          #ingredientsList.mb-3
+            if recipe && recipe.ingredients
+              each ingredient in recipe.ingredients
+                .ingredient-item.mb-2
+                  .row
+                    .col-5
+                      input.form-control.ingredient-name(type='text' placeholder='Ingredient' required value=ingredient.name)
+                    .col-3
+                      input.form-control.ingredient-quantity(type='number' step='0.01' placeholder='Quantity' required value=ingredient.quantity)
+                    .col-3
+                      input.form-control.ingredient-unit(type='text' placeholder='Unit' required value=ingredient.unit)
+                    .col-1
+                      button.btn.btn-danger.remove-ingredient(type='button') ×
+          button#addIngredient.btn.btn-secondary(type='button') Add Ingredient
+
+        .col-md-6
+          h3 Instructions
+          #instructionsList.mb-3
+            if recipe && recipe.instructions
+              each instruction, index in recipe.instructions
+                .instruction-item.mb-4
+                  .row
+                    .col-11
+                      textarea.form-control.instruction-step(rows='2' required)= instruction.description
+                      .image-upload.mt-2
+                        label.form-label Images for Step #{index + 1}
+                        input.form-control.instruction-images(type='file' name=`instruction_images_${instruction.id || index}` multiple accept='image/*')
+                        if instruction.images && instruction.images.length
+                          .image-preview.mt-2.d-flex.gap-2
+                            each image in instruction.images
+                              .position-relative
+                                img.img-thumbnail(src=image.path alt='Step image' style='height: 100px')
+                                button.btn.btn-danger.btn-sm.position-absolute.top-0.end-0.remove-image(type='button' data-image-id=image.id) ×
+                    .col-1
+                      button.btn.btn-danger.remove-instruction(type='button') ×
+          button#addInstruction.btn.btn-secondary(type='button') Add Step
+
+      .row.mt-4
+        .col-md-12
+          h3 Categories
+          #categoriesList.mb-3
+            .row
+              each category in categories
+                .col-md-3.mb-2
+                  .form-check
+                    input.form-check-input(
+                      type='checkbox'
+                      name='categories[]'
+                      value=category.id
+                      checked=recipe && recipe.categories && recipe.categories.some(c => c.id === category.id)
+                    )
+                    label.form-check-label= category.name
+
+      .row.mt-4
+        .col-12
+          button.btn.btn-primary.me-2(type='submit')= recipe ? 'Update Recipe' : 'Create Recipe'
+          a.btn.btn-secondary(href='/') Cancel
+
+block scripts
+  script(src='/javascripts/recipe-form.js')
