@@ -1,0 +1,22 @@
+# Dependencies
+node_modules
+npm-debug.log
+
+# Docker
+Dockerfile
+docker-compose*.yml
+.dockerignore
+
+# Development
+.git
+.gitignore
+README.md
+
+# Data
+/data
+database.sqlite
+/public/uploads/*
+
+# IDE
+.vscode
+.idea

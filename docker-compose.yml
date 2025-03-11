@@ -1,0 +1,18 @@
+version: '3.8'
+
+services:
+  app:
+    build: .
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+    volumes:
+      # Mount persistent volumes for database and uploads
+      - data:/data
+    restart: unless-stopped
+
+volumes:
+  data:
+    # Create a named volume for persistent data
+    driver: local
