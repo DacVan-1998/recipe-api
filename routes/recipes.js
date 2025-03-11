@@ -12,7 +12,36 @@ const uploadFields = [
   { name: /^instruction_images_\d+$/, maxCount: 10 } // Match any instruction images field
 ];
 
-// GET /api/recipes - List all recipes with optional filters
+/**
+ * @swagger
+ * /api/recipes:
+ *   get:
+ *     summary: List all recipes
+ *     description: Retrieve a list of recipes with optional search and category filters
+ *     tags: [Recipes]
+ *     parameters:
+ *       - in: query
+ *         name: search
+ *         schema:
+ *           type: string
+ *         description: Search term for recipe title or description
+ *       - in: query
+ *         name: category
+ *         schema:
+ *           type: string
+ *         description: Filter recipes by category name
+ *     responses:
+ *       200:
+ *         description: A list of recipes
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 $ref: '#/components/schemas/Recipe'
+ *       500:
+ *         description: Server error
+ */
 router.get('/', async (req, res) => {
   try {
     const { search, category } = req.query;
@@ -48,7 +77,32 @@ router.get('/', async (req, res) => {
   }
 });
 
-// GET /api/recipes/:id - Get a specific recipe
+/**
+ * @swagger
+ * /api/recipes/{id}:
+ *   get:
+ *     summary: Get a recipe by ID
+ *     description: Retrieve detailed information about a specific recipe
+ *     tags: [Recipes]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: Recipe ID
+ *     responses:
+ *       200:
+ *         description: Recipe details
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Recipe'
+ *       404:
+ *         description: Recipe not found
+ *       500:
+ *         description: Server error
+ */
 router.get('/:id', async (req, res) => {
   try {
     const recipe = await Recipe.findByPk(req.params.id, {
@@ -85,7 +139,54 @@ router.get('/:id', async (req, res) => {
   }
 });
 
-// POST /api/recipes - Create a new recipe
+/**
+ * @swagger
+ * /api/recipes:
+ *   post:
+ *     summary: Create a new recipe
+ *     description: Create a new recipe with ingredients, instructions, and optional images
+ *     tags: [Recipes]
+ *     consumes:
+ *       - multipart/form-data
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         multipart/form-data:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               title:
+ *                 type: string
+ *               description:
+ *                 type: string
+ *               prep_time:
+ *                 type: integer
+ *               cook_time:
+ *                 type: integer
+ *               servings:
+ *                 type: integer
+ *               recipe_image:
+ *                 type: string
+ *                 format: binary
+ *               ingredients:
+ *                 type: string
+ *                 description: JSON string of ingredients array
+ *               instructions:
+ *                 type: string
+ *                 description: JSON string of instructions array
+ *               categoryIds:
+ *                 type: string
+ *                 description: JSON string of category IDs array
+ *     responses:
+ *       201:
+ *         description: Recipe created successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Recipe'
+ *       400:
+ *         description: Invalid request data
+ */
 router.post('/', upload.any(), async (req, res) => {
   try {
     const { title, description, prep_time, cook_time, servings } = req.body;
@@ -175,7 +276,64 @@ router.post('/', upload.any(), async (req, res) => {
   }
 });
 
-// PUT /api/recipes/:id - Update a recipe
+/**
+ * @swagger
+ * /api/recipes/{id}:
+ *   put:
+ *     summary: Update a recipe
+ *     description: Update an existing recipe with new data, images, ingredients and instructions
+ *     tags: [Recipes]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: Recipe ID
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         multipart/form-data:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               title:
+ *                 type: string
+ *               description:
+ *                 type: string
+ *               prep_time:
+ *                 type: integer
+ *               cook_time:
+ *                 type: integer
+ *               servings:
+ *                 type: integer
+ *               recipe_image:
+ *                 type: string
+ *                 format: binary
+ *               ingredients:
+ *                 type: string
+ *                 description: JSON string of ingredients array
+ *               instructions:
+ *                 type: string
+ *                 description: JSON string of instructions array
+ *               categoryIds:
+ *                 type: string
+ *                 description: JSON string of category IDs array
+ *               deleted_images:
+ *                 type: string
+ *                 description: Comma-separated list of image IDs to delete
+ *     responses:
+ *       200:
+ *         description: Recipe updated successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Recipe'
+ *       400:
+ *         description: Invalid request data
+ *       404:
+ *         description: Recipe not found
+ */
 router.put('/:id', upload.any(), async (req, res) => {
   try {
     const recipe = await Recipe.findByPk(req.params.id);
@@ -301,7 +459,28 @@ router.put('/:id', upload.any(), async (req, res) => {
   }
 });
 
-// DELETE /api/recipes/:id - Delete a recipe
+/**
+ * @swagger
+ * /api/recipes/{id}:
+ *   delete:
+ *     summary: Delete a recipe
+ *     description: Delete a recipe and all associated data including images
+ *     tags: [Recipes]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: Recipe ID
+ *     responses:
+ *       204:
+ *         description: Recipe successfully deleted
+ *       404:
+ *         description: Recipe not found
+ *       500:
+ *         description: Server error
+ */
 router.delete('/:id', async (req, res) => {
   try {
     const recipe = await Recipe.findByPk(req.params.id, {
